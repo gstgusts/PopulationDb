@@ -11,9 +11,15 @@ namespace PopulationDb
 {
     public class PopulationService
     {
+        private readonly SqlConnectionProvider _connectionProvider;
+        public PopulationService()
+        {
+            _connectionProvider = new SqlConnectionProvider();
+        }
+
         public IEnumerable<Region> GetRegions()
         {
-            var connection = new SqlConnection("Data Source=GUSTSASUS\\MSSQLSERVER2;Initial Catalog=Population;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+            var connection = _connectionProvider.GetConnection();
 
             SqlCommand cmd = connection.CreateCommand();
 
@@ -44,7 +50,7 @@ namespace PopulationDb
 
         public Region? GetRegionById(int id)
         {
-            var connection = new SqlConnection("Data Source=GUSTSASUS\\MSSQLSERVER2;Initial Catalog=Population;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+            var connection = _connectionProvider.GetConnection();
 
             SqlCommand cmd = connection.CreateCommand();
 
@@ -78,7 +84,7 @@ namespace PopulationDb
 
         public IEnumerable<Region> GetRegionsByName(string name)
         {
-            var connection = new SqlConnection("Data Source=GUSTSASUS\\MSSQLSERVER2;Initial Catalog=Population;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+            var connection = _connectionProvider.GetConnection();
 
             SqlCommand cmd = connection.CreateCommand();
 

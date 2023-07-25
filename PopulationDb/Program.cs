@@ -6,7 +6,22 @@
         {
             var populationService = new PopulationService();
 
-            populationService.GetRegions();
+            var regions = populationService.GetRegions();
+
+            //foreach (var region in regions) {
+            //    Console.WriteLine(region.Name);
+            //}
+
+            var region1 = populationService.GetRegionById(1);
+
+            //Console.WriteLine(region1?.Name);
+
+            var regionsByName = populationService.GetRegionsByName("me");
+
+            foreach (var region in regionsByName)
+            {
+                Console.WriteLine(region.Name);
+            }
         }
     }
 }

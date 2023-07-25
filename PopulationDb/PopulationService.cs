@@ -19,79 +19,47 @@ namespace PopulationDb
 
         public IEnumerable<Region> GetRegions()
         {
-            var connection = _connectionProvider.GetConnection();
-
-            SqlCommand cmd = connection.CreateCommand();
-
-            cmd.CommandText = "select * from Region";
-            cmd.CommandType = CommandType.Text;
-
-            try { 
-                connection.Open();
-
-                var reader = cmd.ExecuteReader();
-
-                var items = new List<Region>();
-
-                while (reader.Read())
-                {
-                    items.Add(new Region(reader.GetInt32("Id"), reader.GetString("Name")));
-                }
-
-                connection.Close();
-
-                return items;
-            }
-            catch (Exception ex) {
-                throw;  
-            }
-
+            return ExecuteSql("select * from Region");
         }
 
         public Region? GetRegionById(int id)
         {
-            var connection = _connectionProvider.GetConnection();
+            var parameters = new Dictionary<string, object>
+              {
+                  { "@id", id}
+              };
 
-            SqlCommand cmd = connection.CreateCommand();
+            var regions = ExecuteSql("select * from Region where Id=@id", parameters);
 
-            cmd.CommandText = "select * from Region where Id=@id";
-            cmd.CommandType = CommandType.Text;
-
-            cmd.Parameters.AddWithValue("@id", id);
-
-            try
-            {
-                connection.Open();
-
-                var reader = cmd.ExecuteReader();
-
-                Region? region = null;
-
-                while (reader.Read())
-                {
-                    region = new Region(reader.GetInt32("Id"), reader.GetString("Name"));
-                }
-
-                connection.Close();
-
-                return region;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            return regions.FirstOrDefault();
         }
 
         public IEnumerable<Region> GetRegionsByName(string name)
+        {
+            var parameters = new Dictionary<string, object>
+              {
+                  { "@name", $"%{name}%"}
+              };
+
+            return ExecuteSql("select * from Region where Name like @name", parameters);
+        }
+
+        private IEnumerable<Region> ExecuteSql(string sql, Dictionary<string, object>? parameters = null)
         {
             var connection = _connectionProvider.GetConnection();
 
             SqlCommand cmd = connection.CreateCommand();
 
-            cmd.CommandText = "select * from Region where Name like @name";
+            cmd.CommandText = sql;
             cmd.CommandType = CommandType.Text;
 
-            cmd.Parameters.AddWithValue("@name", $"%{name}%");
+            if (parameters != null && parameters.Any())
+            {
+                foreach (var parameter in parameters)
+                {
+                    cmd.Parameters.AddWithValue(parameter.Key, parameter.Value);
+                }
+            }
 
             try
             {
@@ -114,7 +82,6 @@ namespace PopulationDb
             {
                 throw;
             }
-
         }
     }
 }
